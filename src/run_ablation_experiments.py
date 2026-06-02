@@ -38,6 +38,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hf-endpoint", type=str, default=os.environ.get("HF_ENDPOINT", "https://hf-mirror.com"))
     parser.add_argument("--limit-train-samples", type=int, default=None)
     parser.add_argument("--limit-val-samples", type=int, default=None)
+    parser.add_argument("--limit-test-samples", type=int, default=None)
+    parser.add_argument("--early-stopping-patience", type=int, default=2)
+    parser.add_argument("--early-stopping-min-delta", type=float, default=0.0)
     return parser.parse_args()
 
 
@@ -69,6 +72,10 @@ def main() -> None:
             args.text_column,
             "--analysis-dir",
             str(PROJECT_ROOT / "output" / "analysis" / name),
+            "--early-stopping-patience",
+            str(args.early_stopping_patience),
+            "--early-stopping-min-delta",
+            str(args.early_stopping_min_delta),
             *modality_args,
         ]
 
@@ -76,6 +83,8 @@ def main() -> None:
             command.extend(["--limit-train-samples", str(args.limit_train_samples)])
         if args.limit_val_samples is not None:
             command.extend(["--limit-val-samples", str(args.limit_val_samples)])
+        if args.limit_test_samples is not None:
+            command.extend(["--limit-test-samples", str(args.limit_test_samples)])
 
         print("=" * 80, flush=True)
         print(f"Experiment {index}/{len(EXPERIMENTS)}: {name}", flush=True)

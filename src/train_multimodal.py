@@ -363,6 +363,8 @@ def train_model(
     learning_rate: float = 2e-5,
     save_path: Path | None = None,
     log_every: int = 50,
+    early_stopping_patience: int = 2,
+    early_stopping_min_delta: float = 0.0,
 ) -> None:
     if save_path is None:
         raise ValueError("save_path must be resolved before training.")
@@ -372,6 +374,7 @@ def train_model(
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     best_val_f1 = -1.0
+    epochs_without_improvement = 0
 
     for epoch in range(epochs):
         model.train()
@@ -418,10 +421,27 @@ def train_model(
         )
         print_metrics("Validation", val_metrics)
 
-        if val_metrics["macro_f1"] > best_val_f1:
-            best_val_f1 = val_metrics["macro_f1"]
+        current_val_f1 = float(val_metrics["macro_f1"])
+        improved = current_val_f1 > best_val_f1 + early_stopping_min_delta
+
+        if improved:
+            best_val_f1 = current_val_f1
+            epochs_without_improvement = 0
             torch.save(model.state_dict(), save_path)
             print(f"Saved new best model to {save_path} with Val Macro F1: {best_val_f1:.4f}")
+        else:
+            epochs_without_improvement += 1
+            print(
+                f"No Val Macro F1 improvement for "
+                f"{epochs_without_improvement}/{early_stopping_patience} epoch(s)."
+            )
+
+        if early_stopping_patience > 0 and epochs_without_improvement >= early_stopping_patience:
+            print(
+                f"Early stopping at epoch {epoch + 1}. "
+                f"Best Val Macro F1: {best_val_f1:.4f}"
+            )
+            break
 
 
 def evaluate_model(
@@ -634,6 +654,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--limit-val-samples", type=int, default=None)
     parser.add_argument("--limit-test-samples", type=int, default=None)
     parser.add_argument("--analysis-dir", type=Path, default=ANALYSIS_DIR)
+    parser.add_argument(
+        "--early-stopping-patience",
+        type=int,
+        default=2,
+        help="Stop after this many epochs without Val Macro F1 improvement. Use 0 to disable.",
+    )
+    parser.add_argument(
+        "--early-stopping-min-delta",
+        type=float,
+        default=0.0,
+        help="Minimum Val Macro F1 improvement required to reset early stopping.",
+    )
     parser.add_argument("--use-image", dest="use_image", action="store_true", default=True)
     parser.add_argument("--no-use-image", dest="use_image", action="store_false")
     parser.add_argument("--use-text", dest="use_text", action="store_true", default=True)
@@ -701,6 +733,8 @@ def main() -> None:
         learning_rate=args.learning_rate,
         save_path=save_path,
         log_every=args.log_every,
+        early_stopping_patience=args.early_stopping_patience,
+        early_stopping_min_delta=args.early_stopping_min_delta,
     )
 
     print(f"Loading best checkpoint for test analysis: {save_path}")
