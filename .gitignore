@@ -1,0 +1,45 @@
+# macOS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.conda/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large raw datasets
+data/
+
+# Processed image folders are large. Keep CSV metadata trackable.
+processed/multimodal_training/images/
+
+# Model checkpoints and downloaded/generated weights
+*.pth
+*.pt
+*.ckpt
+best_models/
+
+# Runtime outputs and analysis artifacts
+output/analysis/
+output/reports/
+
+# Logs
+*.log
+logs/
+
+# Local caches
+.cache/
+cache/
