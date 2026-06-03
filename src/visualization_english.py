@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from pathlib import Path
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -18,9 +19,9 @@ sns.set_style("whitegrid")
 sns.set_palette("Set2")
 
 # Paths
-PROJECT_ROOT = "/Users/bessie/Desktop/fake_news_detection"
-MAPPING_FILE = f"{PROJECT_ROOT}/processed/mapping/complete_multimodal_mapping.csv"
-OUTPUT_DIR = f"{PROJECT_ROOT}/output/figures/"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MAPPING_FILE = PROJECT_ROOT / "processed" / "mapping" / "complete_multimodal_mapping.csv"
+OUTPUT_DIR = PROJECT_ROOT / "output" / "figures"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -136,7 +137,7 @@ def create_visualizations(df):
     plt.tight_layout()
     
     # Save
-    output_path = f"{OUTPUT_DIR}/visualization_report_english.png"
+    output_path = OUTPUT_DIR / "visualization_report_english.png"
     plt.savefig(output_path, dpi=150, bbox_inches='tight', facecolor='white')
     plt.show()
     

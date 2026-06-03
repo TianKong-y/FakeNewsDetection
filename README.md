@@ -35,7 +35,7 @@ Python 3.11 is recommended. On macOS with conda:
 ```bash
 conda create -n fakenewsdetection python=3.11 -y
 conda activate fakenewsdetection
-cd /Users/bessie/Desktop/fake_news_detection
+cd /path/to/fake_news_detection
 python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r requirements.txt
 ```

@@ -36,6 +36,9 @@ best_models/
 output/analysis/
 output/reports/
 
+# Draft report
+docs/final_report_draft.md
+
 # Logs
 *.log
 logs/
